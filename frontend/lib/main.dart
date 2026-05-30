@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'add_contact_screen.dart';
+import 'add_wear_log_screen.dart';
 
 void main() {
   runApp(const MyApp());
@@ -76,6 +77,19 @@ class _HomeScreenState extends State<HomeScreen> {
                   ),
                   subtitle: Text(
                     'DIA: ${contact['dia']} / BC: ${contact['base_curve']}',
+                  ),
+                  trailing: IconButton(
+                    icon: const Icon(Icons.add_a_photo, color: Colors.grey),
+                    onPressed: () {
+                      // カメラアイコンを押したら、装着記録画面へ移動する（カラコンのIDを渡す）
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) =>
+                              AddWearLogScreen(contactId: contact['id']),
+                        ),
+                      );
+                    },
                   ),
                 );
               },
