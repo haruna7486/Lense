@@ -1,10 +1,19 @@
 from fastapi import FastAPI, Depends, HTTPException
+from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.orm import Session
 from typing import List
 
 import models, schemas, database
 
 app = FastAPI()
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # どこからの通信でも許可する（テスト用設定）
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
 
 # 依存性の注入
 # データベースへの接続窓口（セッション）を自動で開き、作業が終わったら自動で閉じてくれる便利な仕組み
