@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+import 'add_contact_screen.dart';
 
 void main() {
   runApp(const MyApp());
@@ -79,6 +80,20 @@ class _HomeScreenState extends State<HomeScreen> {
                 );
               },
             ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () async {
+          // Navigatorを使って、新しい画面（AddContactScreen）へ移動する
+          await Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => const AddContactScreen()),
+          );
+
+          // 登録画面から戻ってきたら、自動で最新のデータを読み込み直す
+          fetchContacts();
+        },
+        backgroundColor: Colors.pink,
+        child: const Icon(Icons.add, color: Colors.white),
+      ),
     );
   }
 }
