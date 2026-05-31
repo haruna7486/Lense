@@ -25,8 +25,12 @@ class WearLog(Base):
 
     id = Column(Integer, primary_key=True, index=True)
     contact_id = Column(Integer, ForeignKey("contacts_master.id"), nullable=False) # 紐づくカラコンのID
-    wear_date = Column(Date, nullable=False)          # 装着した日付
-    image_path = Column(String, nullable=False)       # 写真の保存先パス
+    
+    # ※今のFlutter画面には日付入力がないので、とりあえず空っぽ(null)でもOKな設定にしています
+    wear_date = Column(Date, nullable=True)          
+    
+    memo = Column(String, nullable=True)              # 👈 追加：着け心地などのメモ
+    image_path = Column(String, nullable=True)        # 写真の保存先パス
     created_at = Column(DateTime, server_default=func.now()) # 記録日時
 
     # この装着記録から、着けているカラコンの詳細を簡単に引っ張れるようにする設定

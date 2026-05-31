@@ -1,7 +1,9 @@
-from fastapi import FastAPI, Depends, HTTPException
+from fastapi import FastAPI, Depends, HTTPException, File, UploadFile, Form
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.orm import Session
 from typing import List
+import shutil # 👈 ファイルを保存するためのツール
+import os     # 👈 フォルダを操作するためのツール
 
 import models, schemas, database
 
@@ -54,3 +56,39 @@ def read_contacts(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)
     contacts = db.query(models.ContactMaster).offset(skip).limit(limit).all()
     return contacts
 
+# 装着記録（写真＋メモ）を受け取って保存するAPI
+@app.post("/wear_logs/")
+async def create_wear_log(
+    contact_id: int = Form(...),
+    memo: str = Form(None),
+    image: UploadFile = File(None),
+    db: Session = Depends(get_db)
+):
+    image_path = None
+    
+    # もし画像が送られてきていたら、uploadsフォルダに保存する
+    if image is not None:
+        # 万が一uploadsフォルダがなくても自動で作る安全対策
+        os.makedirs("uploads", exist_ok=True)
+        
+        # 保存する名前を決める（例: 1_photo.jpg）
+        file_name = f"{contact_id}_{image.filename}"
+        save_path = f"uploads/{file_name}"
+        
+        # 実際にファイルをフォルダに書き込む
+        with open(save_path, "wb") as buffer:
+            shutil.copyfileobj(image.file, buffer)
+            
+        image_path = save_path # データベースにはこの「パス（保存場所）」を記録する
+
+    # データベースに記録を保存
+    new_log = models.WearLog(
+        contact_id=contact_id,
+        memo=memo,
+        image_path=image_path
+    )
+    db.add(new_log)
+    db.commit()
+    db.refresh(new_log)
+
+    return {"message": "記録の保存に成功しました！", "log_id": new_log.id}
